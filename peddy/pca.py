@@ -19,9 +19,9 @@ log = logging.getLogger(__name__)
 
 HERE = op.dirname(op.abspath(__file__))
 
-def pca(fig_path, genotype_matrix=None, sites=None):
+def pca(fig_path, genotype_matrix=None, sites=None, build="hg19"):
 
-    f = op.join(HERE, "sites", "hg19", "1kg.sites.bin.gz")
+    f = op.join(HERE, "sites", build, "1kg.sites.bin.gz")
     t0 = time.time()
     tmp = np.fromstring(gzip.open(f, 'rb').read(), dtype=np.uint8).astype(np.int32)
     genos1kg = tmp.reshape((23556, int(len(tmp) / 23556))).T

@@ -431,7 +431,7 @@ class Ped(object):
 
     """
 
-    def __init__(self, ped, warn=True):
+    def __init__(self, ped, build="hg19", warn=True):
         if isinstance(ped, basestring):
             self.filename = ped
             ped = open(ped)
@@ -441,6 +441,7 @@ class Ped(object):
         self._parse(ped)
         self._graph = None
         self._cache = {}
+        self.build = build
 
     def _parse(self, fh):
         self.header = None
@@ -826,12 +827,12 @@ class Ped(object):
         plt.close()
         return pd.DataFrame(res)
 
-    def het_check(self, vcf_path, plot=False, ncpus=1, min_depth=8,
-                  sites=op.join(op.dirname(__file__), 'sites', 'hg19', '1kg.sites'),
-                  **kwargs):
+    def het_check(self, vcf_path, plot=False, ncpus=1, min_depth=8, sites=None, **kwargs):
         """
         kwargs is not used, but added here to allow same args as ped_check
         """
+        if not sites:
+            sites = op.join(op.dirname(__file__), 'sites', self.build, '1kg.sites')
         import cyvcf2
         import numpy as np
         if ncpus > 16:
@@ -924,8 +925,7 @@ class Ped(object):
         return df, background_pca_df
 
     def ped_check(self, vcf, ncpus=1, plot=False, min_depth=5, each=1,
-            prefix='',
-            sites=op.join(op.dirname(__file__), 'sites', 'hg19', '1kg.sites')):
+            prefix='', sites=None):
         """
         Given the current pedigree and a VCF of genotypes, find sample-pairs where
         the relationship reported in the pedigree file do not match those inferred
@@ -937,6 +937,8 @@ class Ped(object):
         :param min_depth int: minimum required depth.
         :return: pandas.DataFrame
         """
+        if not sites:
+            sites = op.join(op.dirname(__file__), 'sites', self.build, '1kg.sites')
         import cyvcf2
         import numpy as np
         import pandas as pd

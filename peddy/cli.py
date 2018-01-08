@@ -170,7 +170,7 @@ def peddy(vcf, ped, plot, procs, prefix, each, sites, build, loglevel):
 
     tmpl = string.Template(open(op.join(op.dirname(__file__), "tmpl.html")).read())
 
-    ped_obj = Ped(ped)
+    ped_obj = Ped(ped, build=build)
     prefix = prefix.rstrip(".-")
 
     samples = VCF(vcf).samples
