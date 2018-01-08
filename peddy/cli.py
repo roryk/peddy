@@ -25,6 +25,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
 log = logging.getLogger(__name__)
 
+DEFAULT_BUILD = "hg19"
+DEFAULT_SITES = op.join(op.dirname(__file__), 'sites', 'hg19', '1kg.sites')
+
 def run(args):
     check, pedf, vcf, plot, prefix, each, ncpus, sites = args
     # only print warnings for het_check
@@ -139,20 +142,31 @@ def correct_sex_errors(ped_df):
     help=r"This is rarely used. The path to a file with alternative sites to"\
           " use for calculating relatedness in format 1:234234\n1:45345345..."\
           " with chrom:pos[:ref:alt] on each line",
-    default=op.join(op.dirname(__file__), "sites", "hg19", '1kg.sites')
+    default=DEFAULT_SITES
+)
+@click.option("--build",
+    help=r"Genome build", type=click.Choice(['hg19', 'hg38']),
+    default=DEFAULT_BUILD
 )
 @click.option('--loglevel',
     default='INFO',
     type=click.Choice(LOG_LEVELS),
     help="Set the level of log output.",
-    show_default=True,
+    show_default=True
 )
 @click.version_option(version=__version__, prog_name="peddy")
-def peddy(vcf, ped, plot, procs, prefix, each, sites, loglevel):
+def peddy(vcf, ped, plot, procs, prefix, each, sites, build, loglevel):
     """pleasingly pythonic pedigree manipulation"""
     coloredlogs.install(log_level=loglevel)
     log.info("Running Peddy version %s", __version__)
     prefix = prefix or vcf[:-6]
+
+    if build != DEFAULT_BUILD and sites != DEFAULT_SITES:
+        log.error("Specifying the genome build is not supported with a custom sites file.")
+        sys.exit(1)
+
+    if build != DEFAULT_BUILD:
+        sites = sites.replace(DEFAULT_BUILD, build)
 
     tmpl = string.Template(open(op.join(op.dirname(__file__), "tmpl.html")).read())
 
