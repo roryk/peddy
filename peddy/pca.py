@@ -21,14 +21,14 @@ HERE = op.dirname(op.abspath(__file__))
 
 def pca(fig_path, genotype_matrix=None, sites=None):
 
-    f = op.join(HERE, "1kg.sites.bin.gz")
+    f = op.join(HERE, "sites", "hg19", "1kg.sites.bin.gz")
     t0 = time.time()
     tmp = np.fromstring(gzip.open(f, 'rb').read(), dtype=np.uint8).astype(np.int32)
     genos1kg = tmp.reshape((23556, int(len(tmp) / 23556))).T
 
 
     if genotype_matrix is not None:
-        kgsites = [x.strip() for x in open(op.join(HERE, "1kg.sites"), "r")]
+        kgsites = [x.strip() for x in open(op.join(HERE, "sites", "hg19", "1kg.sites"), "r")]
 
         # exclude missing from 1kg. these may come out of order because of
         # parallelization so we put 1kg is same order
